@@ -6,7 +6,7 @@
           我发起的
         </h3>
       </template>
-      <a-table :columns="columns" :loading="state.loading" :data-source="state.init">
+      <a-table :columns="initColumns" :loading="state.loading" :data-source="state.init">
         <template #time="{text, record}">
           {{new Date(text * 1000).toLocaleString()}}
         </template>
@@ -23,6 +23,12 @@
             </template>
             正在众筹
           </a-tag>
+          <a-tag color="warning" v-else-if="new Date(record.endTime * 1000) < new Date()">
+            <template #icon>
+              <close-circle-outlined />
+            </template>
+            众筹取消
+          </a-tag>
           <a-tag color="error" v-else>
             <template #icon>
               <close-circle-outlined />
@@ -31,7 +37,16 @@
           </a-tag>
         </template>
         <template #action="{text, record}">
-          <a @click="clickFunding(record.index)">查看详情</a>
+          <a-space>
+            <a @click="clickFunding(record.index)">查看详情</a>
+            <a-popconfirm
+              v-if="new Date(record.endTime * 1000) > new Date() && !record.success"
+              title="确定要取消这个众筹项目吗？所有投资者的资金将被退还。"
+              @confirm="handleCancel(record.index)"
+            >
+              <a-button type="link" danger>取消众筹</a-button>
+            </a-popconfirm>
+          </a-space>
         </template>
       </a-table>
     </a-card>
@@ -42,7 +57,7 @@
           我投资的
         </h3>
       </template>
-      <a-table :columns="columns" :loading="state.loading" :data-source="state.contr">
+      <a-table :columns="contrColumns" :loading="state.loading" :data-source="state.contr">
         <template #time="{text, record}">
           {{new Date(text * 1000).toLocaleString()}}
         </template>
@@ -59,6 +74,12 @@
             </template>
             正在众筹
           </a-tag>
+          <a-tag color="warning" v-else-if="new Date(record.endTime * 1000) <= new Date()">
+            <template #icon>
+              <close-circle-outlined />
+            </template>
+            众筹取消
+          </a-tag>
           <a-tag color="error" v-else>
             <template #icon>
               <close-circle-outlined />
@@ -67,7 +88,9 @@
           </a-tag>
         </template>
         <template #action="{text, record}">
-          <a @click="clickFunding(record.index)">查看详情</a>
+          <a-space>
+            <a @click="clickFunding(record.index)">查看详情</a>
+          </a-space>
         </template>
       </a-table>
     </a-card>
@@ -79,12 +102,48 @@ import { defineComponent, ref, reactive } from 'vue';
 import Modal from '../components/base/modal.vue'
 import CreateForm from '../components/base/createForm.vue'
 import { Model, Fields, Form } from '../type/form'
-import { contract, getAccount, getAllFundings, Funding, newFunding, getMyFundings, addListener } from '../api/contract'
+import { contract, getAccount, getAllFundings, Funding, newFunding, getMyFundings, addListener, cancelFunding } from '../api/contract'
 import { message } from 'ant-design-vue'
 import { CheckCircleOutlined, SyncOutlined, CloseCircleOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 
-const columns = [
+const initColumns = [
+  {
+    dataIndex: 'title',
+    key: 'title',
+    title: '众筹标题'
+  },
+  {
+    title: '目标金额(eth)',
+    dataIndex: 'goal',
+    key: 'goal'
+  },
+  {
+    title: '目前金额(eth)',
+    dataIndex: 'amount',
+    key: 'amount'
+  },
+  {
+    title: '结束时间',
+    dataIndex: 'endTime',
+    key: 'endTime',
+    slots: { customRender: 'time' }
+  },
+  {
+    title: '当前状态',
+    dataIndex: 'success',
+    key: 'success',
+    slots: { customRender: 'tag' }
+  },
+  {
+    title: '操作',
+    dataIndex: 'action',
+    key: 'action',
+    slots: { customRender: 'action' }
+  },
+]
+
+const contrColumns = [
   {
     dataIndex: 'title',
     key: 'title',
@@ -154,10 +213,22 @@ export default defineComponent({
     const clickFunding = (index : number) => {
       router.push(`/funding/${index}`)
     }
+
+    const handleCancel = async (index: number) => {
+      try {
+        await cancelFunding(index);
+        message.success('众筹已取消，资金已退还给投资者');
+        fetchData();
+      } catch (e) {
+        console.log(e);
+        message.error('取消众筹失败！');
+      }
+    }
+
     addListener(fetchData)
     fetchData();
 
-    return { state, columns, clickFunding }
+    return { state, initColumns, contrColumns, clickFunding, handleCancel }
   }
 });
 </script>

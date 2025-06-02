@@ -4,7 +4,7 @@ import CrowdFunding from './CrowdFunding.json'
 
 //@ts-ignore
 const web3 = new Web3(window.ethereum);
-const contract = new web3.eth.Contract(CrowdFunding.abi, '0xF872d6D139043848E00E8f84Ffb1aD74319c7855');
+const contract = new web3.eth.Contract(CrowdFunding.abi, '0xFCdBd1b08EaBADa4E7b05ddD5A0A30bdca0fDa98');
 
 function addListener(fn: Function) {
     //@ts-ignore
@@ -183,6 +183,14 @@ async function getTransactionHistory() : Promise<Transaction[]> {
     return transactions.sort((a, b) => b.timestamp - a.timestamp);
 }
 
+async function cancelFunding(id: number) {
+    const account = await getAccount();
+    return await contract.methods.cancelFunding(id).send({
+        from: account,
+        gas: 1000000
+    });
+}
+
 export {
     getAccount,
     authenticate,
@@ -199,5 +207,6 @@ export {
     returnMoney,
     addListener,
     getBalance,
-    getTransactionHistory
+    getTransactionHistory,
+    cancelFunding
 }

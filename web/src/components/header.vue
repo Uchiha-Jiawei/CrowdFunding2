@@ -9,7 +9,7 @@
       <a @click="handleClick">{{account}}</a>
     </nav>
     <h1 class="title">
-      Dapp众筹平台
+      YLY众筹平台
     </h1>
   </header>
 </template>

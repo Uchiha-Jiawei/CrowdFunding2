@@ -24,6 +24,12 @@
             </template>
             正在众筹
           </a-tag>
+          <a-tag color="warning" v-else-if="new Date(record.endTime * 1000) < new Date()">
+            <template #icon>
+              <close-circle-outlined />
+            </template>
+            众筹取消
+          </a-tag>
           <a-tag color="error" v-else>
             <template #icon>
               <close-circle-outlined />

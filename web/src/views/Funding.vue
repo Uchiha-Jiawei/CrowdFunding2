@@ -34,7 +34,13 @@
             </template>
             众筹成功
           </a-tag>
-          <a-tag color="processing" v-else-if="new Date(state.data.endTime * 1000) > new Date()" >
+          <a-tag color="warning" v-else-if="new Date(state.data.endTime * 1000) <= new Date()" >
+            <template #icon>
+              <close-circle-outlined />
+            </template>
+            众筹取消
+          </a-tag>
+           <a-tag color="processing" v-else-if="new Date(state.data.endTime * 1000) > new Date()" >
             <template #icon>
               <sync-outlined :spin="true" />
             </template>
@@ -173,7 +179,7 @@ export default defineComponent({
     const returnFields = reactive<Fields>({
       value: {
         type: 'number',
-        min: 1,
+        min: 0.000000000000000001, // 最小单位为1 Wei
         label: '退款金额'
       }
     })

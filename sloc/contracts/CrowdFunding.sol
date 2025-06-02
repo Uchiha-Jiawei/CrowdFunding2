@@ -260,4 +260,34 @@ contract CrowdFunding {
       }
       return res;
   } 
+
+  // 取消众筹
+  function cancelFunding(uint ID) public {
+    require(ID <= numFundings && ID >= 1, "Invalid funding ID");
+    require(fundings[ID].success == false, "Cannot cancel successful funding");
+    require(msg.sender == fundings[ID].initiator, "Only initiator can cancel funding");
+
+    Funding storage f = fundings[ID];
+    
+    // 退还所有投资者的资金
+    for(uint i=1; i<=f.numFunders; i++) {
+      if(f.funders[i].amount > 0) {
+        uint amount = f.funders[i].amount;
+        f.funders[i].addr.transfer(amount);
+        
+        // 记录退款交易
+        recordTransaction(address(this), f.funders[i].addr, amount, "众筹取消退款");
+        
+        // 清零投资记录
+        f.funders[i].amount = 0;
+      }
+    }
+    
+    // 更新众筹状态
+    f.amount = 0;
+    f.endTime = block.timestamp;  // 立即结束众筹
+    
+    // 记录取消操作
+    recordTransaction(msg.sender, address(this), 0, "取消众筹");
+  }
 }
