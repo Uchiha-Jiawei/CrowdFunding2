@@ -34,6 +34,7 @@ contract CrowdFunding {
     string title;                    // 项目标题
     string info;                     // 项目简介
     uint goal;                       // 目标金额
+    uint startTime;                  // 众筹开始时间
     uint endTime;                    // 众筹结束时间
 
     bool success;                    // 众筹是否成功，成功则 amount 含义为项目剩余的钱
@@ -69,6 +70,7 @@ contract CrowdFunding {
     f.title = title;
     f.info = info;
     f.goal = goal;
+    f.startTime = block.timestamp;
     f.endTime = endTime;
     f.success = false;
     f.amount = 0;

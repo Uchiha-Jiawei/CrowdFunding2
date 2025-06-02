@@ -24,6 +24,9 @@
         <a-descriptions-item label="众筹发起人" :span="2">
           {{state.data.initiator}}
         </a-descriptions-item>
+        <a-descriptions-item label="开始日期" :span="2">
+           {{new Date(state.data.startTime * 1000).toLocaleString()}}
+        </a-descriptions-item>
         <a-descriptions-item label="截止日期" :span="2">
            {{new Date(state.data.endTime * 1000).toLocaleString()}}
         </a-descriptions-item>

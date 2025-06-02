@@ -72,18 +72,28 @@ const columns = [
   {
     title: '目标金额(eth)',
     dataIndex: 'goal',
-    key: 'goal'
+    key: 'goal',
+    sorter: (a: Funding, b: Funding) => (a.goal || 0) - (b.goal || 0)
   },
   {
     title: '目前金额(eth)',
     dataIndex: 'amount',
-    key: 'amount'
+    key: 'amount',
+    sorter: (a: Funding, b: Funding) => (a.amount || 0) - (b.amount || 0)
+  },
+  {
+    title: '开始时间',
+    dataIndex: 'startTime',
+    key: 'startTime',
+    slots: { customRender: 'time' },
+    sorter: (a: Funding, b: Funding) => (a.startTime || 0) - (b.startTime || 0)
   },
   {
     title: '结束时间',
     dataIndex: 'endTime',
     key: 'endTime',
-    slots: { customRender: 'time' }
+    slots: { customRender: 'time' },
+    sorter: (a: Funding, b: Funding) => (a.endTime || 0) - (b.endTime || 0)
   },
   {
     title: '当前状态',

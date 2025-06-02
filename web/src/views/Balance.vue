@@ -94,7 +94,8 @@ const transactionColumns = [
     title: '时间',
     dataIndex: 'timestamp',
     key: 'timestamp',
-    slots: { customRender: 'time' }
+    slots: { customRender: 'time' },
+    sorter: (a: Transaction, b: Transaction) => (a.timestamp || 0) - (b.timestamp || 0)
   },
   {
     title: '类型',
@@ -104,7 +105,9 @@ const transactionColumns = [
   {
     title: '金额(ETH)',
     dataIndex: 'amount',
-    key: 'amount'
+    key: 'amount',
+    sorter: (a: Transaction, b: Transaction) => (parseInt(a.amount) || 0) - (parseInt(b.amount) || 0)
+    
   },
   {
     title: '发送方',

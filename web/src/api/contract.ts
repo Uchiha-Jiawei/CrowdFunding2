@@ -4,7 +4,7 @@ import CrowdFunding from './CrowdFunding.json'
 
 //@ts-ignore
 const web3 = new Web3(window.ethereum);
-const contract = new web3.eth.Contract(CrowdFunding.abi, '0xFCdBd1b08EaBADa4E7b05ddD5A0A30bdca0fDa98');
+const contract = new web3.eth.Contract(CrowdFunding.abi, '0x97aF4152a61EacE0010439d52E8082C75B538890');
 
 function addListener(fn: Function) {
     //@ts-ignore
@@ -16,6 +16,7 @@ export declare interface Funding {
     title: string,
     info: string,
     goal: number,
+    startTime: number,
     endTime: number,
     initiator: string,
     over: boolean,
