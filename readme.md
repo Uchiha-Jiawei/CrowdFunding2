@@ -13,6 +13,6 @@ npm     : 8.19.4
 ### 运行：
 1. 安装yarn：npm install yarn
 2. 安装依赖：yarn
-3. 部署合约：输入：truffle compile 输入：truffle migrate
-3. 启动ganache
+3. 部署合约：在sloc文件下，输入：truffle compile 输入：truffle migrate
+3. 启动ganache，创建出账号
 4. 启动前端：yarn serve
