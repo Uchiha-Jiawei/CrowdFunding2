@@ -12,8 +12,8 @@
           {{state.data.title}}
           <span style="float:right">
             你投资了 {{state.myAmount}} Eth
-            <a-button type="primary" v-if="new Date(state.data.endTime * 1000) > new Date() && state.data.success == false" @click="openModal">我要投资</a-button>
-            <a-button type="danger" v-if="!state.data.success && state.myAmount != 0" @click="returnM">退钱！</a-button>
+            <a-button type="primary" v-if="new Date(state.data.endTime * 1000) > new Date() && state.data.success == false" @click="openInvestModal">我要投资</a-button>
+            <a-button type="danger" v-if="!state.data.success && state.myAmount != 0" @click="openReturnModal">退钱！</a-button>
           </span>
         </h3>
       </template>
@@ -73,10 +73,17 @@
 
     </a-card>
 
-    <Modal v-model:visible="isOpen">
+    <Modal v-model:visible="isInvestOpen">
       <a-card style="width: 600px; margin: 0 2em;" :body-style="{ overflowY: 'auto', maxHeight: '600px' }">
         <template #title><h3 style="text-align: center">投资</h3></template>
-        <create-form :model="model" :form="form" :fields="fields" />
+        <create-form :model="investModel" :form="investForm" :fields="investFields" />
+      </a-card>
+    </Modal>
+
+    <Modal v-model:visible="isReturnOpen">
+      <a-card style="width: 600px; margin: 0 2em;" :body-style="{ overflowY: 'auto', maxHeight: '600px' }">
+        <template #title><h3 style="text-align: center">退款</h3></template>
+        <create-form :model="returnModel" :form="returnForm" :fields="returnFields" />
       </a-card>
     </Modal>
   </div>
@@ -125,47 +132,68 @@ export default defineComponent({
     })
 
     // ===========发起投资表单============
-    const isOpen = ref(false);
-    function openModal() { isOpen.value = true }
-    function closeModal() { isOpen.value = false }
+    const isInvestOpen = ref(false);
+    const isReturnOpen = ref(false);
+    function openInvestModal() { isInvestOpen.value = true }
+    function closeInvestModal() { isInvestOpen.value = false }
+    function openReturnModal() { isReturnOpen.value = true }
+    function closeReturnModal() { isReturnOpen.value = false }
 
-    const model = reactive<Model>({
+    const investModel = reactive<Model>({
       value: 1
     })
-    const fields = reactive<Fields>({
+    const investFields = reactive<Fields>({
       value: {
         type: 'number',
         min: 1,
         label: '投资金额'
       }
     })
-    const form = reactive<Form>({
+    const investForm = reactive<Form>({
       submitHint: '投资',
       cancelHint: '取消',
       cancel: () => {
-        closeModal();
+        closeInvestModal();
       },
       finish: async () => {
         try {
-          await contribute(id, model.value);
+          await contribute(id, investModel.value);
           message.success('投资成功')
           fetchData();
-          closeModal();
+          closeInvestModal();
         } catch (e) {
           message.error('投资失败')
         }
       }
     })
 
-    async function returnM() {
-      try {
-        await returnMoney(id);
-        message.success('退钱成功');
-        fetchData()
-      } catch(e) {
-        message.error('退钱失败')
+    const returnModel = reactive<Model>({
+      value: 1
+    })
+    const returnFields = reactive<Fields>({
+      value: {
+        type: 'number',
+        min: 1,
+        label: '退款金额'
       }
-    }
+    })
+    const returnForm = reactive<Form>({
+      submitHint: '退款',
+      cancelHint: '取消',
+      cancel: () => {
+        closeReturnModal();
+      },
+      finish: async () => {
+        try {
+          await returnMoney(id, returnModel.value);
+          message.success('退款成功');
+          fetchData();
+          closeReturnModal();
+        } catch (e) {
+          message.error('退款失败')
+        }
+      }
+    })
 
     // =========切换标签页===========
     const key = ref('info');
@@ -180,7 +208,8 @@ export default defineComponent({
         [state.data, state.myAmount] = await Promise.all([getOneFunding(id), getMyFundingAmount(id)]);
         state.loading = false;
         //@ts-ignore
-        fields.value.max = state.data.goal - state.data.amount;
+        investFields.value.max = state.data.goal - state.data.amount;
+        returnFields.value.max = state.myAmount;
       } catch (e) {
         console.log(e);
         message.error('获取详情失败');
@@ -192,7 +221,24 @@ export default defineComponent({
     getAccount().then(res => account.value = res)
     fetchData();
 
-    return {state, account, isOpen, openModal, form, model, fields, tabList, key, onTabChange, id, returnM}
+    return {
+      state, 
+      account, 
+      isInvestOpen,
+      isReturnOpen, 
+      openInvestModal,
+      openReturnModal, 
+      investForm,
+      returnForm, 
+      investModel,
+      returnModel, 
+      investFields,
+      returnFields, 
+      tabList, 
+      key, 
+      onTabChange, 
+      id
+    }
   }
 });
 </script>

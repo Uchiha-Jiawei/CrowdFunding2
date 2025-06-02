@@ -4,7 +4,7 @@ import CrowdFunding from './CrowdFunding.json'
 
 //@ts-ignore
 const web3 = new Web3(window.ethereum);
-const contract = new web3.eth.Contract(CrowdFunding.abi, '0x9130191D3841ac2095748725953420Fa7FC51C2B');
+const contract = new web3.eth.Contract(CrowdFunding.abi, '0xF872d6D139043848E00E8f84Ffb1aD74319c7855');
 
 function addListener(fn: Function) {
     //@ts-ignore
@@ -34,6 +34,14 @@ export declare interface Use {
     disagree: string,
     over: boolean,
     agree: number // 0: 没决定，1同意，2不同意
+}
+
+export declare interface Transaction {
+    from: string,
+    to: string,
+    amount: string,
+    timestamp: number,
+    txType: string
 }
 
 async function authenticate() {
@@ -142,12 +150,37 @@ async function newUse(id:number, goal:number, info:string) {
     })
 }
 
-async function returnMoney(id: number) {
+async function returnMoney(id: number, amount: number) {
     const account = await getAccount();
-    return await contract.methods.returnMoney(id).send({
+    return await contract.methods.returnMoney(id, Web3.utils.toWei(amount.toString(), 'ether')).send({
         from: account,
         gas: 1000000
-    })
+    });
+}
+
+async function getBalance() : Promise<string> {
+    const account = await getAccount();
+    const balance = await web3.eth.getBalance(account);
+    return Web3.utils.fromWei(balance, 'ether');
+}
+
+async function getTransactionHistory() : Promise<Transaction[]> {
+    const account = await getAccount();
+    const ids = await contract.methods.getUserTransactionIds(account).call();
+    const transactions: Transaction[] = [];
+    
+    for(const id of ids) {
+        const tx = await contract.methods.getTransaction(id).call();
+        transactions.push({
+            from: tx[0],
+            to: tx[1],
+            amount: Web3.utils.fromWei(tx[2].toString(), 'ether'),
+            timestamp: parseInt(tx[3]),
+            txType: tx[4]
+        });
+    }
+
+    return transactions.sort((a, b) => b.timestamp - a.timestamp);
 }
 
 export {
@@ -164,5 +197,7 @@ export {
     newUse,
     getMyFundings,
     returnMoney,
-    addListener
+    addListener,
+    getBalance,
+    getTransactionHistory
 }

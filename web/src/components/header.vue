@@ -4,6 +4,7 @@
       <a class="logo"><img src="/logo.png"></a>
       <router-link to="/">所有众筹</router-link>
       <router-link to="/myself">我的众筹</router-link>
+      <router-link to="/balance">我的资金</router-link>
       <span :style="{ flex: 1 }"></span>
       <a @click="handleClick">{{account}}</a>
     </nav>
