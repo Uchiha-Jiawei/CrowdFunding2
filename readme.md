@@ -11,8 +11,10 @@ Web3.js : 1.10.0
 npm     : 8.19.4
 
 ### 运行：
-1. 安装yarn：npm install yarn
-2. 安装依赖：yarn
-3. 部署合约：在sloc文件下，输入：truffle compile 输入：truffle migrate
-3. 启动ganache，创建出账号
-4. 启动前端：yarn serve
+1. sloc安装依赖：在sloc文件下输入：npm install
+2. 部署合约：在sloc文件下输入：npm run compile 输入truffle migrate
+3. 启动ganache，选择truffle-config文件，创建出账号
+4. web安装依赖：在web文件下输入：npm install yarn 输入：yarn
+5. 在web文件下启动网站yarn serve
+6. metaMask中添加好账号连接网站
+7. 成功

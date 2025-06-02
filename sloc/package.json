@@ -1,0 +1,11 @@
+{
+  "name": "crowdfunding-contracts",
+  "version": "1.0.0",
+  "scripts": {
+    "compile": "truffle compile",
+    "postcompile": "node ../scripts/update-contract-address.js"
+  },
+  "dependencies": {
+    "truffle": "^5.1.65"
+  }
+} 

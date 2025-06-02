@@ -38315,13 +38315,12 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x97aF4152a61EacE0010439d52E8082C75B538890",
-      "transactionHash": "0x4b7e4d19a17282faa0934c1e92cb4dccc623bafbe39421d96b5cc640b9264a6f"
+      "address": "0xDad0f42e0FA1f5550206e79F052F596e341C80A2",
+      "transactionHash": "0xe92e52aa3732e5d310b7f207eeaa84bae2bb5ea618da88fd81e6002e23f53077"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-06-02T11:16:58.474Z",
-  "networkType": "ethereum",
+  "updatedAt": "2025-06-02T11:54:45.097Z",
   "devdoc": {
     "methods": {
       "newFunding(address,string,string,uint256,uint256)": {

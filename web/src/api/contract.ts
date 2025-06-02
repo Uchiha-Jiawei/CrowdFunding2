@@ -4,7 +4,7 @@ import CrowdFunding from './CrowdFunding.json'
 
 //@ts-ignore
 const web3 = new Web3(window.ethereum);
-const contract = new web3.eth.Contract(CrowdFunding.abi, '0x97aF4152a61EacE0010439d52E8082C75B538890');
+const contract = new web3.eth.Contract(CrowdFunding.abi, '0xDad0f42e0FA1f5550206e79F052F596e341C80A2');
 
 function addListener(fn: Function) {
     //@ts-ignore
