@@ -4,7 +4,7 @@ import CrowdFunding from './CrowdFunding.json'
 
 //@ts-ignore
 const web3 = new Web3(window.ethereum);
-const contract = new web3.eth.Contract(CrowdFunding.abi, '0xDad0f42e0FA1f5550206e79F052F596e341C80A2');
+const contract = new web3.eth.Contract(CrowdFunding.abi, '0x5200F3aF69902a18A8471dAf793e0Ef8c115576c');
 
 function addListener(fn: Function) {
     //@ts-ignore
@@ -20,6 +20,7 @@ export declare interface Funding {
     endTime: number,
     initiator: string,
     over: boolean,
+    isCancel: boolean,
     success: boolean,
     amount: number,
     numFunders: number,
@@ -192,6 +193,52 @@ async function cancelFunding(id: number) {
     });
 }
 
+// 检查众筹是否超时并退款
+async function checkTimeoutAndRefund(id: number) {
+  const account = await getAccount();
+  return await contract.methods.checkTimeoutAndRefund(id).send({from: account});
+}
+
+async function getInvestors(id: number) : Promise<{investor: string, amount: string}[]> {
+    try {
+        const numFunders = await contract.methods.getFunderCount(id).call();
+        const investorMap = new Map<string, string>();       
+        // 收集所有投资记录
+        for(let i = 1; i <= parseInt(numFunders); i++) {
+            try {
+                const result = await contract.methods.getFunder(id, i).call();            
+                // 从返回对象中获取数据
+                const addr = result[0];
+                const amount = result[1];
+                
+                if(addr && addr !== '0x0000000000000000000000000000000000000000') {
+                    const currentAmount = investorMap.get(addr) || '0';
+                    const newAmount = (BigInt(currentAmount) + BigInt(amount)).toString();
+                    investorMap.set(addr, newAmount);
+                }
+            } catch (error) {
+                console.error(`Error fetching funder ${i}:`, error);
+                continue;
+            }
+        }
+               
+        // 转换为数组格式
+        const investors = Array.from(investorMap.entries())
+            .filter(([_, amount]) => BigInt(amount) > BigInt(0))
+            .map(([investor, amount]) => ({
+                investor,
+                amount: Web3.utils.fromWei(amount, 'ether')
+            }));
+        
+        // 按投资金额降序排序
+        investors.sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount));
+        return investors;
+    } catch (error) {
+        console.error('Error in getInvestors:', error);
+        return [];
+    }
+}
+
 export {
     getAccount,
     authenticate,
@@ -209,5 +256,7 @@ export {
     addListener,
     getBalance,
     getTransactionHistory,
-    cancelFunding
+    cancelFunding,
+    checkTimeoutAndRefund,
+    getInvestors
 }

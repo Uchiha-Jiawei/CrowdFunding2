@@ -38,7 +38,7 @@ contract CrowdFunding {
     uint endTime;                    // 众筹结束时间
 
     bool success;                    // 众筹是否成功，成功则 amount 含义为项目剩余的钱
-
+    bool isCancel;                   // 判断众筹是否取消
     uint amount;                     // 当前已经筹集到的金额
     uint numFunders;                 // 投资记录数量
     uint numUses;                    // 使用请求数量
@@ -72,6 +72,7 @@ contract CrowdFunding {
     f.goal = goal;
     f.startTime = block.timestamp;
     f.endTime = endTime;
+    f.isCancel = false;
     f.success = false;
     f.amount = 0;
     f.numFunders = 0;
@@ -287,9 +288,51 @@ contract CrowdFunding {
     
     // 更新众筹状态
     f.amount = 0;
-    f.endTime = block.timestamp;  // 立即结束众筹
-    
+    f.isCancel = true;
+    f.endTime = block.timestamp;
     // 记录取消操作
     recordTransaction(msg.sender, address(this), 0, "取消众筹");
+  }
+
+  // 检查众筹是否超时并处理退款
+  function checkTimeoutAndRefund(uint ID) public {
+    require(ID <= numFundings && ID >= 1, "Invalid funding ID");
+    Funding storage f = fundings[ID];
+    
+    // 检查是否已超时且未成功
+    require(block.timestamp > f.endTime, "Funding not timeout yet");
+    require(!f.success, "Funding is successful");
+    require(!f.isCancel, "Funding is already cancelled");
+    
+    // 退还所有投资者的资金
+    for(uint i=1; i<=f.numFunders; i++) {
+      if(f.funders[i].amount > 0) {
+        uint amount = f.funders[i].amount;
+        f.funders[i].addr.transfer(amount);
+        
+        // 记录退款交易
+        recordTransaction(address(this), f.funders[i].addr, amount, "众筹超时退款");
+        
+        // 清零投资记录
+        f.funders[i].amount = 0;
+      }
+    }
+    // 更新众筹状态
+    f.amount = 0;
+  }
+
+  // 获取众筹项目的投资人数量
+  function getFunderCount(uint ID) public view returns (uint) {
+    require(ID <= numFundings && ID >= 1, "Invalid funding ID");
+    return fundings[ID].numFunders;
+  }
+
+  // 获取指定众筹项目中某个投资人的信息
+  function getFunder(uint ID, uint funderIndex) public view returns (address, uint) {
+    require(ID <= numFundings && ID >= 1, "Invalid funding ID");
+    require(funderIndex <= fundings[ID].numFunders && funderIndex >= 1, "Invalid funder index");
+    
+    Funder storage funder = fundings[ID].funders[funderIndex];
+    return (funder.addr, funder.amount);
   }
 }
