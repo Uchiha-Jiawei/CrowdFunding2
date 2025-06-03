@@ -44205,7 +44205,7 @@
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-06-03T12:25:21.957Z",
+  "updatedAt": "2025-06-03T14:42:06.973Z",
   "devdoc": {
     "methods": {
       "newFunding(address,string,string,uint256,uint256)": {
