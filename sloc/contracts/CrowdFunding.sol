@@ -189,8 +189,6 @@ contract CrowdFunding {
     f.uses[f.numUses].over = false;
     f.amount = f.amount - goal;
     
-    // 记录交易
-    recordTransaction(address(this), msg.sender, goal, "使用资金");
   }
 
   function agreeUse(uint ID, uint useID, bool agree) public {
@@ -224,6 +222,8 @@ contract CrowdFunding {
     if(fundings[ID].uses[useID].agreeAmount >= fundings[ID].goal / 2) {
       fundings[ID].uses[useID].over = true;
       fundings[ID].initiator.transfer(fundings[ID].uses[useID].goal); // 转账时，使用 address payable 类型
+      // 记录交易
+      recordTransaction(address(this), fundings[ID].initiator, fundings[ID].uses[useID].goal, "使用资金");
     }
     if(fundings[ID].uses[useID].disagree > fundings[ID].goal / 2) {
       fundings[ID].amount = fundings[ID].amount + fundings[ID].uses[useID].goal;

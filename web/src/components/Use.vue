@@ -14,7 +14,7 @@
           </template>
           正在等待通过
         </a-tag>
-        <a-tag color="success" v-else-if="record.agreeAmount >= record.goal / 2">
+        <a-tag color="success" v-else-if="record.agreeAmount >= data.goal / 2">
           <template #icon>
             <check-circle-outlined />
           </template>
